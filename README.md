@@ -5,4 +5,5 @@ To run the server you need Node.js installed on your machine.
 After installing Node.js, execute  the following commands in the local directory
 
 npm install socket.io
+
 npm install node-static
