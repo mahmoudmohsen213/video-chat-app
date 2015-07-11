@@ -25,6 +25,8 @@ var remoteVideo = document.querySelector('#remoteVideo');
 var callButton = document.querySelector('#callButton');
 var hangupButton = document.querySelector('#hangupButton');
 
+var logTextArea = document.querySelector('#logTextArea');
+
 callButton.disabled = true;
 hangupButton.disabled = true;
 callButton.onclick = startCall;
@@ -40,37 +42,39 @@ while(room === '' || !room){
 }
 
 console.log('Create or join room', room);
+logTextArea.value += ('Create or join room ' + room + '\n');
 socket.emit('create or join', room);
 
 socket.on('created', function (room) {
     console.log('Created room ' + room);
-    alert('Created room ' + room);
+    logTextArea.value += ('Created room ' + room + '\n');
     isInitiator = true;
 });
 
 socket.on('full', function (room) {
     console.log('Room ' + room + ' is full');
-    alert('Room ' + room + ' is full');
+    logTextArea.value += ('Room ' + room + ' is full\n');
 });
 
 socket.on('join', function (room) {
     console.log('Another peer made a request to join room ' + room);
     console.log('This peer is the initiator of room ' + room + '!');
-    alert('Another peer made a request to join room ' + room + '\n'
-            + 'This peer is the initiator of room ' + room + '!');
+    logTextArea.value += ('Another peer made a request to join room ' + room + '\n');
+    logTextArea.value += ('This peer is the initiator of room ' + room + '\n');
     isChannelReady = true;
     callButton.disabled = false;
 });
 
 socket.on('joined', function (room) {
     console.log('This peer has joined room ' + room);
-    alert('This peer has joined room ' + room);
+    logTextArea.value += ('This peer has joined room ' + room + '\n');
     isChannelReady = true;
     callButton.disabled = false;
 });
 
 socket.on('log', function (array) {
     console.log.apply(console, array);
+    logTextArea.value += (array + '\n');
 });
 
 ////////////////////////////////////////////////
