@@ -74,7 +74,9 @@ socket.on('joined', function (room) {
 
 socket.on('log', function (array) {
     console.log.apply(console, array);
-    logTextArea.value += (array + '\n');
+    logTextArea.value += (array[0] + '\n');
+    for(var i=1;i<array.length;++i)
+        logTextArea.value += ('\t' + array[i] + '\n');
 });
 
 ////////////////////////////////////////////////
@@ -85,7 +87,7 @@ function sendMessage(message) {
 }
 
 socket.on('message', function (message) {
-    console.log('Client received message:', message);
+    console.log('Client received message: ', message);
     if (message === 'got user media') {
         maybeStart();
     } else if (message.type === 'offer') {
@@ -110,7 +112,7 @@ socket.on('message', function (message) {
 ////////////////////////////////////////////////////
 
 function handleUserMedia(stream) {
-    console.log('Adding local stream.');
+    console.log('Adding local stream');
     localVideo.src = window.URL.createObjectURL(stream);
     localStream = stream;
     sendMessage('got user media');
@@ -123,11 +125,9 @@ function handleUserMediaError(error) {
     console.log('getUserMedia error: ', error);
 }
 
-var constraints = {audio: true, video: true};
+var constraints = {audio: false, video: true};
 getUserMedia(constraints, handleUserMedia, handleUserMediaError);
-console.log('Getting user media with constraints', constraints);
-callButton.disabled = true;
-hangupButton.disabled = false;
+console.log('Getting user media with constraints ', constraints);
 
 //if (location.hostname != "localhost") {
 //    requestTurn('https://computeengineondemand.appspot.com/turn?username=41784574&key=4080218913');
@@ -146,7 +146,7 @@ function maybeStart() {
         createPeerConnection();
         pc.addStream(localStream);
         isStarted = true;
-        console.log('isInitiator', isInitiator);
+        console.log('isInitiator ', isInitiator);
         if (isInitiator) {
             doCall();
         }
@@ -182,12 +182,12 @@ function handleIceCandidate(event) {
             id: event.candidate.sdpMid,
             candidate: event.candidate.candidate});
     } else {
-        console.log('End of candidates.');
+        console.log('End of candidates');
     }
 }
 
 function handleRemoteStreamAdded(event) {
-    console.log('Remote stream added.');
+    console.log('Remote stream added');
     remoteVideo.src = window.URL.createObjectURL(event.stream);
     remoteStream = event.stream;
 }
@@ -202,7 +202,7 @@ function doCall() {
 }
 
 function doAnswer() {
-    console.log('Sending answer to peer.');
+    console.log('Sending answer to peer');
     pc.createAnswer(setLocalAndSendMessage, null, sdpConstraints);
 }
 
@@ -210,7 +210,7 @@ function setLocalAndSendMessage(sessionDescription) {
     // Set Opus as the preferred codec in SDP if Opus is present.
     sessionDescription.sdp = preferOpus(sessionDescription.sdp);
     pc.setLocalDescription(sessionDescription);
-    console.log('setLocalAndSendMessage sending message', sessionDescription);
+    console.log('setLocalAndSendMessage sending message ', sessionDescription);
     sendMessage(sessionDescription);
 }
 
@@ -244,7 +244,7 @@ function requestTurn(turn_url) {
 }
 
 function handleRemoteStreamAdded(event) {
-    console.log('Remote stream added.');
+    console.log('Remote stream added');
     remoteVideo.src = window.URL.createObjectURL(event.stream);
     remoteStream = event.stream;
 }
@@ -254,19 +254,15 @@ function handleRemoteStreamRemoved(event) {
 }
 
 function hangup() {
-    console.log('Hanging up.');
+    console.log('Hanging up');
     stop();
     sendMessage('bye');
-    callButton.disabled = false;
-    hangupButton.disabled = true;
 }
 
 function handleRemoteHangup() {
-    console.log('Session terminated.');
+    console.log('Session terminated');
     stop();
     isInitiator = false;
-    callButton.disabled = false;
-    hangupButton.disabled = true;
 }
 
 function stop() {
