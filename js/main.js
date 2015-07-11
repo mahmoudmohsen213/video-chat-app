@@ -35,7 +35,7 @@ hangupButton.onclick = hangup;
 var room = prompt('Enter room name:');
 var socket = io.connect();
 
-while(room === ''){
+while(room === '' || !room){
     room = prompt('Enter room name:');
 }
 
@@ -119,6 +119,12 @@ function handleUserMediaError(error) {
     console.log('getUserMedia error: ', error);
 }
 
+//var constraints = {audio: true, video: true};
+//getUserMedia(constraints, handleUserMedia, handleUserMediaError);
+//console.log('Getting user media with constraints', constraints);
+//callButton.disabled = true;
+//hangupButton.disabled = false;
+
 //if (location.hostname != "localhost") {
 //    requestTurn('https://computeengineondemand.appspot.com/turn?username=41784574&key=4080218913');
 //}
@@ -127,6 +133,8 @@ function startCall(){
     var constraints = {audio: true, video: true};
     getUserMedia(constraints, handleUserMedia, handleUserMediaError);
     console.log('Getting user media with constraints', constraints);
+    callButton.disabled = true;
+    hangupButton.disabled = false;
 }
 
 function maybeStart() {
@@ -245,12 +253,16 @@ function hangup() {
     console.log('Hanging up.');
     stop();
     sendMessage('bye');
+    callButton.disabled = false;
+    hangupButton.disabled = true;
 }
 
 function handleRemoteHangup() {
-//  console.log('Session terminated.');
-    // stop();
-    // isInitiator = false;
+    console.log('Session terminated.');
+    stop();
+    isInitiator = false;
+    callButton.disabled = false;
+    hangupButton.disabled = true;
 }
 
 function stop() {
