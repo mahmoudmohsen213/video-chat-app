@@ -17,22 +17,20 @@ var sdpConstraints = {'mandatory': {
         'OfferToReceiveAudio': true,
         'OfferToReceiveVideo': true}};
 
-/////////////////////////////////////////////
+////////////////////////////////////////
 
 var localVideo = document.querySelector('#localVideo');
 var remoteVideo = document.querySelector('#remoteVideo');
 
-var callButton = document.querySelector('#callButton');
-var hangupButton = document.querySelector('#hangupButton');
-
+var holdButton = document.querySelector('#holdButton');
 var logTextArea = document.querySelector('#logTextArea');
 
-callButton.disabled = true;
-hangupButton.disabled = true;
-//callButton.onclick = startCall;
-//hangupButton.onclick = hangup;
+console.log('button text: ' + holdButton.innerHTML);
 
-/////////////////////////////////////////////
+holdButton.disabled = true;
+holdButton.onclick = putOnHold;
+
+////////////////////////////////////////
 
 var room = prompt('Enter room name:');
 var socket = io.connect();
@@ -62,14 +60,12 @@ socket.on('join', function (room) {
     logTextArea.value += ('Another peer made a request to join room ' + room + '\n');
     logTextArea.value += ('This peer is the initiator of room ' + room + '\n');
     isChannelReady = true;
-    callButton.disabled = false;
 });
 
 socket.on('joined', function (room) {
     console.log('This peer has joined room ' + room);
     logTextArea.value += ('This peer has joined room ' + room + '\n');
     isChannelReady = true;
-    callButton.disabled = false;
 });
 
 socket.on('log', function (array) {
@@ -79,7 +75,7 @@ socket.on('log', function (array) {
         logTextArea.value += ('\t' + array[i] + '\n');
 });
 
-////////////////////////////////////////////////
+////////////////////////////////////////
 
 function sendMessage(message) {
     console.log('Client sending message: ', message);
@@ -109,7 +105,19 @@ socket.on('message', function (message) {
     }
 });
 
-////////////////////////////////////////////////////
+////////////////////////////////////////
+
+function putOnHold(){
+    pc.removeStream(localStream);
+    holdButton.onclick = resume;
+    holdButton.innerHTML = 'Resume';
+}
+
+function resume(){
+    pc.addStream(localStream);
+    holdButton.onclick = putOnHold;
+    holdButton.innerHTML = 'Hold';
+}
 
 function handleUserMedia(stream) {
     console.log('Adding local stream');
@@ -123,29 +131,19 @@ function handleUserMedia(stream) {
 
 function handleUserMediaError(error) {
     console.log('getUserMedia error: ', error);
+    alert('getUserMedia error: ' + error);
 }
 
-var constraints = {audio: false, video: true};
+var constraints = {audio: true, video: true};
 getUserMedia(constraints, handleUserMedia, handleUserMediaError);
 console.log('Getting user media with constraints ', constraints);
-
-//if (location.hostname != "localhost") {
-//    requestTurn('https://computeengineondemand.appspot.com/turn?username=41784574&key=4080218913');
-//}
-
-//function startCall(){
-//    var constraints = {audio: true, video: true};
-//    getUserMedia(constraints, handleUserMedia, handleUserMediaError);
-//    console.log('Getting user media with constraints', constraints);
-//    callButton.disabled = true;
-//    hangupButton.disabled = false;
-//}
 
 function maybeStart() {
     if (!isStarted && typeof localStream != 'undefined' && isChannelReady) {
         createPeerConnection();
         pc.addStream(localStream);
         isStarted = true;
+        holdButton.disabled = false;
         console.log('isInitiator ', isInitiator);
         if (isInitiator) {
             doCall();
@@ -157,7 +155,7 @@ window.onbeforeunload = function (e) {
     sendMessage('bye');
 };
 
-/////////////////////////////////////////////////////////
+////////////////////////////////////////
 
 function createPeerConnection() {
     try {
@@ -168,7 +166,7 @@ function createPeerConnection() {
         console.log('Created RTCPeerConnnection');
     } catch (e) {
         console.log('Failed to create PeerConnection, exception: ' + e.message);
-        alert('Cannot create RTCPeerConnection object.');
+        alert('Cannot create RTCPeerConnection object');
         return;
     }
 }
@@ -273,7 +271,7 @@ function stop() {
     pc = null;
 }
 
-///////////////////////////////////////////
+////////////////////////////////////////
 
 // Set Opus as the default audio codec if it's present.
 function preferOpus(sdp) {
