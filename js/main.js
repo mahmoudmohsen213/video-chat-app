@@ -25,8 +25,6 @@ var remoteVideo = document.querySelector('#remoteVideo');
 var holdButton = document.querySelector('#holdButton');
 var logTextArea = document.querySelector('#logTextArea');
 
-console.log('button text: ' + holdButton.innerHTML);
-
 holdButton.disabled = true;
 holdButton.onclick = putOnHold;
 
