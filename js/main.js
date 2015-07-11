@@ -29,8 +29,8 @@ var logTextArea = document.querySelector('#logTextArea');
 
 callButton.disabled = true;
 hangupButton.disabled = true;
-callButton.onclick = startCall;
-hangupButton.onclick = hangup;
+//callButton.onclick = startCall;
+//hangupButton.onclick = hangup;
 
 /////////////////////////////////////////////
 
@@ -123,23 +123,23 @@ function handleUserMediaError(error) {
     console.log('getUserMedia error: ', error);
 }
 
-//var constraints = {audio: true, video: true};
-//getUserMedia(constraints, handleUserMedia, handleUserMediaError);
-//console.log('Getting user media with constraints', constraints);
-//callButton.disabled = true;
-//hangupButton.disabled = false;
+var constraints = {audio: true, video: true};
+getUserMedia(constraints, handleUserMedia, handleUserMediaError);
+console.log('Getting user media with constraints', constraints);
+callButton.disabled = true;
+hangupButton.disabled = false;
 
 //if (location.hostname != "localhost") {
 //    requestTurn('https://computeengineondemand.appspot.com/turn?username=41784574&key=4080218913');
 //}
 
-function startCall(){
-    var constraints = {audio: true, video: true};
-    getUserMedia(constraints, handleUserMedia, handleUserMediaError);
-    console.log('Getting user media with constraints', constraints);
-    callButton.disabled = true;
-    hangupButton.disabled = false;
-}
+//function startCall(){
+//    var constraints = {audio: true, video: true};
+//    getUserMedia(constraints, handleUserMedia, handleUserMediaError);
+//    console.log('Getting user media with constraints', constraints);
+//    callButton.disabled = true;
+//    hangupButton.disabled = false;
+//}
 
 function maybeStart() {
     if (!isStarted && typeof localStream != 'undefined' && isChannelReady) {
